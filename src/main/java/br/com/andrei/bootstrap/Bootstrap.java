@@ -1,6 +1,5 @@
 package br.com.andrei.bootstrap;
 
-import org.junit.experimental.categories.Categories.CategoryFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
