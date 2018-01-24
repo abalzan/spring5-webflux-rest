@@ -1,11 +1,10 @@
 package br.com.andrei.controller;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
+import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import br.com.andrei.domain.Vendor;
@@ -45,4 +44,43 @@ public class VendorControllerTest {
 		webTestClient.get().uri("/api/v1/vendors/vendorTest").exchange().expectBody(Vendor.class);
 	}
 
+
+	@Test
+	public void testCreateVendor() {
+		BDDMockito.given(vendorRepository.saveAll(Mockito.any(Publisher.class)))
+				.willReturn(Flux.just(Vendor.builder().build()));
+
+		Mono<Vendor> vendorToSaveMono = Mono.just(Vendor.builder().firstName("First").lastName("Last").build());
+	
+		webTestClient.post()
+					 .uri("/api/v1/vendors")
+					 .body(vendorToSaveMono, Vendor.class)
+					 .exchange()
+					 .expectStatus()
+					 .isCreated();
+	}
+
+	@Test
+	public void testUpdateVendor() {
+		BDDMockito.given(vendorRepository.save(Mockito.any(Vendor.class)))
+				.willReturn(Mono.just(Vendor.builder().build()));
+
+		Mono<Vendor> vendorToUpdateMono = Mono.just(Vendor.builder().firstName("First").lastName("Last").build());
+
+		webTestClient.put()
+					 .uri("/api/v1/vendors/notusedvalue")
+					 .body(vendorToUpdateMono, Vendor.class)
+					 .exchange()
+					 .expectStatus()
+					 .isOk();
+	}
+
+	@Test
+	public void testDeleteVendor() {
+		BDDMockito.given(vendorRepository.findById("test123"))
+		.willReturn(Mono.just(Vendor.builder().firstName("First").lastName("Last").build()));
+
+		webTestClient.delete().uri("/api/v1/vendors/test123").exchange().expectStatus().isOk();
+	}
+	
 }
