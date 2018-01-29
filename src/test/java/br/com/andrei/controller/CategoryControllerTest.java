@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
 import org.mockito.internal.matchers.Any;
@@ -77,6 +78,63 @@ public class CategoryControllerTest {
 					 .isOk();
 	}
 
+	@Test
+	public void testUpdatePatchCategory() {
+		Mockito.when(categoryRepository.findById(Mockito.anyString())).thenReturn(Mono.just(Category.builder().build()));
+		
+		BDDMockito.given(categoryRepository.save(Mockito.any(Category.class)))
+				.willReturn(Mono.just(Category.builder().build()));
+		
+		Mono<Category> catToUpdatePatchMono = Mono.just(Category.builder().id("CategoryID123").description("Category Update Patch Test").build());
+
+		webTestClient.patch()
+					 .uri("/api/v1/categories/notusedvalue")
+					 .body(catToUpdatePatchMono, Category.class)
+					 .exchange()
+					 .expectStatus()
+					 .isOk();
+		
+		Mockito.verify(categoryRepository).save(Mockito.any());
+	}
+	
+	@Test
+	public void testUpdatePatchCategoryWithChanges() {
+		Mockito.when(categoryRepository.findById(Mockito.anyString())).thenReturn(Mono.just(Category.builder().build()));
+		
+		BDDMockito.given(categoryRepository.save(Mockito.any(Category.class)))
+				.willReturn(Mono.just(Category.builder().build()));
+		
+		Mono<Category> catToUpdatePatchMono = Mono.just(Category.builder().description("New Description").build());
+
+		webTestClient.patch()
+					 .uri("/api/v1/categories/notusedvalue")
+					 .body(catToUpdatePatchMono, Category.class)
+					 .exchange()
+					 .expectStatus()
+					 .isOk();
+		
+		Mockito.verify(categoryRepository).save(Mockito.any());
+	}
+	
+	@Test
+	public void testUpdatePatchCategoryWithNoChanges() {
+		Mockito.when(categoryRepository.findById(Mockito.anyString())).thenReturn(Mono.just(Category.builder().build()));
+		
+		BDDMockito.given(categoryRepository.save(Mockito.any(Category.class)))
+				.willReturn(Mono.just(Category.builder().build()));
+		
+		Mono<Category> catToUpdatePatchMono = Mono.just(Category.builder().build());
+
+		webTestClient.patch()
+					 .uri("/api/v1/categories/notusedvalue")
+					 .body(catToUpdatePatchMono, Category.class)
+					 .exchange()
+					 .expectStatus()
+					 .isOk();
+		
+		Mockito.verify(categoryRepository, Mockito.never()).save(Mockito.any());
+	}
+	
 	@Test
 	public void testDeleteCategory() {
 		BDDMockito.given(categoryRepository.findById("test123"))
